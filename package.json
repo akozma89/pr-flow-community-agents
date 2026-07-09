@@ -1,0 +1,22 @@
+{
+  "name": "pr-flow-community-agents",
+  "version": "1.0.0",
+  "description": "Community-contributed custom AI agents and pipelines for PR Flow.",
+  "scripts": {
+    "validate": "node scripts/validate.mjs",
+    "build": "node scripts/build-catalog.js"
+  },
+  "keywords": [],
+  "author": "arpadkozma89@gmail.com",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@secretlint/node": "^13.0.2",
+    "@secretlint/secretlint-rule-preset-recommend": "^13.0.2",
+    "markdownlint": "^0.41.0",
+    "yaml": "^2.9.0",
+    "zod": "^4.4.3"
+  }
+}

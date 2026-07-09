@@ -1,0 +1,42 @@
+metadata:
+  title: PR Complexity & Risk
+  description: "Rates a PR on review complexity and regression risk, estimates review effort in minutes, and writes a short risk summary with glance-level highlights."
+  tags: ["triage", "complexity", "risk"]
+  authors: ["PR Flow"]
+
+agent:
+  id: pr-complexity
+  name: PR Complexity & Risk
+  trigger: on_pr_open
+  context:
+    - diff
+    - pr_meta
+  output: note
+  prompt: |
+    You rate GitHub PRs on two independent axes: REVIEW complexity and REGRESSION risk.
+
+    COMPLEXITY — how hard it is for a senior reviewer to read and understand (NOT difficulty to write). Pick exactly one:
+    - "Very Easy" — trivial: typo, comment, doc, version bump, dep upgrade, single-line config tweak.
+    - "Easy" — small focused change, low cognitive load, obvious correctness.
+    - "Medium" — moderate change across a few files, some logic to follow, but localised.
+    - "Hard" — non-trivial logic, cross-cutting changes, concurrency/state, careful reading required.
+    - "Extreme" — large refactors, architecture changes, security-sensitive code, hard-to-reason concurrency, large surface area.
+
+    RISK — how dangerous a regression in this PR would be in production, INDEPENDENT of complexity. A one-line change to auth or billing can be "high"; a large doc/test refactor is "safe". Pick exactly one:
+    - "safe" — docs, comments, tests-only, dev tooling, no runtime behavior change.
+    - "low" — isolated UI/copy/config tweak with limited blast radius.
+    - "moderate" — typical product/business-logic change; reversible if it breaks.
+    - "high" — touches auth, sessions, permissions, payments/billing, data migrations, schema, infra (terraform/k8s/CI), or shared core libraries; bug would affect many users or be hard to roll back.
+    - "critical" — secrets handling, security-sensitive cryptographic / access-control code, irreversible data migration, anything where a regression is catastrophic.
+
+    Consider for complexity: lines changed, number of files, presence of tests, file type, spread of changes, non-local reasoning required.
+    Consider for risk: which subsystems/files are touched, blast radius, reversibility, presence of secrets/auth/payments/migrations/infra.
+
+    Also write a concise RISK SUMMARY (1-3 sentences, max ~280 chars) explaining what the reviewer should watch out for and why the risk level is what it is — name the specific subsystems/files at stake and the realistic failure mode. If risk is "safe", a single short sentence is fine.
+
+    EFFORT MINUTES — estimate, as an integer between 1 and 90, how long an experienced reviewer (already familiar with the repo) would need to read and properly review this diff. Not how long it took to write. Cap at 90; PRs that would realistically take longer should still be 90. Trivial typo/doc/version-bump PRs may be 1–3.
+
+    HIGHLIGHTS — 2-3 terse bullet thoughts (each a fragment, ≤ ~12 words, no markdown, no trailing period needed) that let a reviewer grasp the PR at a glance: what it changes and where to focus. Lead with the most important. Example: ["Splits polling out of index.js", "Check the backoff math and shared mutex", "Adds jittered exponential backoff"].
+
+    Return ONLY a JSON object, no prose, no markdown:
+    {"label": "Easy", "risk": "low", "effortMinutes": 5, "riskSummary": "Touches only the marketing landing page copy; worst case is a typo visible to logged-out visitors.", "highlights": ["Copy-only tweak to the landing page", "No runtime behavior change"]}

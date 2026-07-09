@@ -1,0 +1,28 @@
+name: Publish Catalog
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Need full history to determine original authors and dates
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm i -g pnpm
+      - run: pnpm install
+      - run: pnpm run build
+      - name: Commit and push catalog
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add catalog.json
+          git commit -m "chore: auto-build catalog.json" || exit 0
+          git push
