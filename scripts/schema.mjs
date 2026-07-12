@@ -24,7 +24,15 @@ export const AgentSchema = z.object({
   agent: z.object({
     id: z.string().regex(/^[a-z0-9-]{1,64}$/), // Must be unique across all agents
     name: z.string().max(60),
-    trigger: z.enum(["on_pr_draft", "on_review_start", "on_conflict", "manual"]),
+    trigger: z.enum([
+      "on_pr_open",
+      "on_pr_draft",
+      "on_review_start",
+      "on_review_submit",
+      "on_conflict",
+      "manual",
+      "on_demand",
+    ]),
     paths: z.array(z.string()).max(10).optional(),
     context: z.array(z.string()).max(10),
     output: z.enum(["findings", "note"]),

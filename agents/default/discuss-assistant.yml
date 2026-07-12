@@ -7,7 +7,7 @@ metadata:
 agent:
   id: discuss-assistant
   name: Discuss Assistant
-  trigger: on_review_start
+  trigger: on_demand
   context:
     - diff
     - pr_meta
