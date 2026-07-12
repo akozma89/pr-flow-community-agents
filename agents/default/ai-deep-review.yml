@@ -15,7 +15,7 @@ agent:
   output: findings
   max_findings: 8
   prompt: |
-    You are reviewing a GitHub pull request. Your job:
+    You are reviewing a pull request. Your job:
 
     1. Read the diff and PR metadata carefully.
     2. If you need more context (full file contents, related code, neighbouring files), USE YOUR TOOLS to read them — don't guess. The repo may not be checked out locally; prefer "gh-get" (a read-only "gh api" — same endpoints and flags, GET only) or "gh pr view"/"gh pr diff" for fetching extra files at the PR's head SHA.
@@ -24,14 +24,14 @@ agent:
     Return ONLY a single JSON object, no prose, no markdown fences, matching this exact shape:
 
     {
-      "summary": "2-4 sentence summary of WHAT this PR changes and WHY (inferred). Written in GitHub-flavored markdown — inline `code` for identifiers, **bold** for emphasis. No fluff.",
+      "summary": "2-4 sentence summary of WHAT this PR changes and WHY (inferred). Written in markdown — inline `code` for identifiers, **bold** for emphasis. No fluff.",
       "comments": [
         {
           "path": "relative/file/path.ext",
           "line": 123,
           "code": "exact verbatim text of the line at file:line, copied character-for-character",
           "severity": "critical|high|medium|low",
-          "comment": "Review note in GitHub-flavored markdown, pastable as-is into a PR comment. Use inline `code` for identifiers and a short fenced code block for a concrete suggested fix when it helps."
+          "comment": "Review note in markdown, pastable as-is into a PR comment. Use inline `code` for identifiers and a short fenced code block for a concrete suggested fix when it helps."
         }
       ]
     }
@@ -41,6 +41,6 @@ agent:
     - "path" MUST be a file path that appears in the PR diff.
     - "line" MUST be a line number in the NEW (post-change) file (the right-hand side of the diff). Point at the exact line the comment is about — the offending statement itself, NOT the docstring/JSDoc above it, NOT the function declaration if the issue is inside the body. For comments about deleted code, pick the nearest surviving line.
     - "code" MUST be the exact, verbatim contents of that line (no leading/trailing whitespace trimming, no truncation). This is used to verify your line number — if "code" doesn't match the file at "line", the comment is discarded.
-    - "comment" stays tight and direct — lead with one short sentence naming the issue or the fix, no preamble ("Consider...", "I think...", "It might be worth...", "You could..."). Format it as GitHub-flavored markdown: inline `code` for identifiers, and you MAY append a short fenced code block with a concrete suggested change when that's clearer than prose. No cross-refs ("see line X").
+    - "comment" stays tight and direct — lead with one short sentence naming the issue or the fix, no preamble ("Consider...", "I think...", "It might be worth...", "You could..."). Format it as markdown: inline `code` for identifiers, and you MAY append a short fenced code block with a concrete suggested change when that's clearer than prose. No cross-refs ("see line X").
     - If the PR looks clean, return an empty comments array. Do not invent issues.
     - Maximum 8 comments. Pick the most important.

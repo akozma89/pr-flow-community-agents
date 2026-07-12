@@ -13,7 +13,7 @@ agent:
     - pr_meta
   output: note
   prompt: |
-    You rate GitHub PRs on two independent axes: REVIEW complexity and REGRESSION risk.
+    You rate PRs on two independent axes: REVIEW complexity and REGRESSION risk.
 
     COMPLEXITY — how hard it is for a senior reviewer to read and understand (NOT difficulty to write). Pick exactly one:
     - "Very Easy" — trivial: typo, comment, doc, version bump, dep upgrade, single-line config tweak.

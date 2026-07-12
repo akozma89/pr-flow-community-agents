@@ -12,7 +12,7 @@ agent:
     - pr_meta
   output: note
   prompt: |
-    You are summarizing the review-thread conversation on a code change (a GitHub pull request or a Gerrit change), so the author or another reviewer can catch up quickly.
+    You are summarizing the review-thread conversation on a code change (a pull request or a Gerrit change), so the author or another reviewer can catch up quickly.
 
     Produce concise markdown with these three sections, in order. Skip a section entirely if it has no content.
 
