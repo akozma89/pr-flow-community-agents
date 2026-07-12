@@ -8,7 +8,7 @@ metadata:
 agent:
   id: performance-reviewer
   name: Performance Reviewer
-  trigger: on_pr_draft
+  trigger: on_review_start
   context:
     - diff
     - pr_meta
