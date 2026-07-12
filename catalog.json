@@ -18,7 +18,7 @@
     "agent": {
       "id": "accessibility-reviewer",
       "name": "Accessibility Reviewer",
-      "trigger": "on_pr_draft",
+      "trigger": "on_review_start",
       "context": [
         "diff",
         "pr_meta"
@@ -73,7 +73,7 @@
     "agent": {
       "id": "code-reviewer",
       "name": "Code Reviewer",
-      "trigger": "on_pr_draft",
+      "trigger": "on_review_start",
       "context": [
         "diff",
         "pr_meta"
@@ -101,7 +101,7 @@
     "agent": {
       "id": "documentation-reviewer",
       "name": "Documentation Reviewer",
-      "trigger": "on_pr_draft",
+      "trigger": "on_review_start",
       "context": [
         "diff",
         "pr_meta"
@@ -129,7 +129,7 @@
     "agent": {
       "id": "performance-reviewer",
       "name": "Performance Reviewer",
-      "trigger": "on_pr_draft",
+      "trigger": "on_review_start",
       "context": [
         "diff",
         "pr_meta"
@@ -157,7 +157,7 @@
     "agent": {
       "id": "test-reviewer",
       "name": "Test Reviewer",
-      "trigger": "on_pr_draft",
+      "trigger": "on_review_start",
       "context": [
         "diff",
         "pr_meta"
