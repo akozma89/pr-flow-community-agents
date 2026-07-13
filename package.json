@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "description": "Community-contributed custom AI agents and pipelines for PR Flow.",
   "scripts": {
-    "validate": "node scripts/validate.mjs",
-    "build": "node scripts/build-catalog.js"
+    "validate": "pnpm run schema && node scripts/validate.mjs",
+    "build": "node scripts/build-catalog.js",
+    "schema": "node scripts/generate-schema.mjs"
   },
   "keywords": [],
   "author": "arpadkozma89@gmail.com",
@@ -18,5 +19,8 @@
     "markdownlint": "^0.41.0",
     "yaml": "^2.9.0",
     "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "zod-to-json-schema": "^3.25.2"
   }
 }
