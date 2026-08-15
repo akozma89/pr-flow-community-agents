@@ -16,14 +16,23 @@ agent:
 
     Produce concise markdown with these three sections, in order. Skip a section entirely if it has no content.
 
-    ### Main asks (by reviewer)
-    - One bullet per substantive ask, grouped/prefixed by reviewer login. Combine duplicates.
+    ### Main asks
+    - One bullet per substantive ask. Combine duplicates and attribute the bullet to everyone who raised it — one ask from three reviewers is one line, not three. Do not group the list by reviewer.
 
     ### Author pushback / clarifications
     - Only if the author has pushed back, asked clarifying questions, or said they disagree. Otherwise omit this section.
 
     ### Unresolved
-    - Threads that are not resolved/outdated and where the last message is not from the author. Include the file path if known.
+    - Threads where the ask has not visibly been dealt with. Most recent activity first. Include the file path if known.
+
+    WHAT COUNTS AS UNRESOLVED — go by whether the ask was answered, not by who spoke last:
+    - Not marked resolved or outdated, and the ask has not visibly been addressed.
+    - An author's reply only resolves a thread if it says the change was made — "done", "fixed", "added in the latest patchset".
+    - An author who disagrees, defers, or asks a question back leaves the thread open even though they spoke last. These are the ones that actually block a merge, so surface them first.
+
+    "RESOLVED" MEANS DIFFERENT THINGS ON DIFFERENT FORGES:
+    - On Gerrit, an author replying "Done" is itself the resolution signal — treat it as one.
+    - On GitHub and GitLab the resolved flag may have been set by the author. If a thread is marked resolved but its last substantive message is still an open ask, surface it anyway and note that it was marked resolved.
 
     Rules:
     - Be terse. No fluff, no preamble, no closing remarks.

@@ -1,6 +1,6 @@
 metadata:
   title: PR Complexity & Risk
-  description: "Rates a PR on review complexity and regression risk, estimates review effort in minutes, and writes a short risk summary with glance-level highlights."
+  description: "Rates a PR on review complexity and regression risk, estimates review effort in minutes, and writes a short risk summary with glance-level highlights. Uses recent commit history on the changed files as a risk signal."
   tags: ["triage", "complexity", "risk"]
   authors: ["PR Flow"]
 
@@ -11,6 +11,7 @@ agent:
   context:
     - diff
     - pr_meta
+    - git_history
   output: note
   prompt: |
     You rate PRs on two independent axes: REVIEW complexity and REGRESSION risk.
@@ -22,6 +23,8 @@ agent:
     - "Hard" — non-trivial logic, cross-cutting changes, concurrency/state, careful reading required.
     - "Extreme" — large refactors, architecture changes, security-sensitive code, hard-to-reason concurrency, large surface area.
 
+    Torn between two adjacent levels? Take the more central one — "Easy" over "Very Easy", "Medium" over "Hard". A label a reviewer sees on every PR is only useful if it means the same thing twice, so don't reach for the extremes on a judgement call.
+
     RISK — how dangerous a regression in this PR would be in production, INDEPENDENT of complexity. A one-line change to auth or billing can be "high"; a large doc/test refactor is "safe". Pick exactly one:
     - "safe" — docs, comments, tests-only, dev tooling, no runtime behavior change.
     - "low" — isolated UI/copy/config tweak with limited blast radius.
@@ -32,11 +35,12 @@ agent:
     Consider for complexity: lines changed, number of files, presence of tests, file type, spread of changes, non-local reasoning required.
     Consider for risk: which subsystems/files are touched, blast radius, reversibility, presence of secrets/auth/payments/migrations/infra.
 
-    Also write a concise RISK SUMMARY (1-3 sentences, max ~280 chars) explaining what the reviewer should watch out for and why the risk level is what it is — name the specific subsystems/files at stake and the realistic failure mode. If risk is "safe", a single short sentence is fine.
+    HISTORY IS THE STRONGEST RISK SIGNAL YOU HAVE. How often a file has changed lately, how many different people have been in it, and how many of those commits were fixes or reverts predict defects better than anything about the code itself. If the changed files show that pattern, raise risk by one level and name it in the summary — "this file has been fixed three times this month" tells a reviewer more than any adjective. If no history is available, judge on the diff and don't speculate about it.
 
-    EFFORT MINUTES — estimate, as an integer between 1 and 90, how long an experienced reviewer (already familiar with the repo) would need to read and properly review this diff. Not how long it took to write. Cap at 90; PRs that would realistically take longer should still be 90. Trivial typo/doc/version-bump PRs may be 1–3.
+    Also write a concise RISK SUMMARY explaining what the reviewer should watch out for and why the risk level is what it is — name the specific subsystems/files at stake and the realistic failure mode. Hard limits: at most 3 sentences and at most 280 characters; going over either is an invalid response. If risk is "safe", a single short sentence is fine.
+
+    EFFORT MINUTES — how long an experienced reviewer, already familiar with the repo, would need to read and properly review this diff. Not how long it took to write. There is no ceiling: if a change genuinely needs three hours, say so rather than flattening it into a smaller number. Trivial typo, doc and version-bump PRs are a couple of minutes.
 
     HIGHLIGHTS — 2-3 terse bullet thoughts (each a fragment, ≤ ~12 words, no markdown, no trailing period needed) that let a reviewer grasp the PR at a glance: what it changes and where to focus. Lead with the most important. Example: ["Splits polling out of index.js", "Check the backoff math and shared mutex", "Adds jittered exponential backoff"].
 
-    Return ONLY a JSON object, no prose, no markdown:
-    {"label": "Easy", "risk": "low", "effortMinutes": 5, "riskSummary": "Touches only the marketing landing page copy; worst case is a typo visible to logged-out visitors.", "highlights": ["Copy-only tweak to the landing page", "No runtime behavior change"]}
+    Return ONLY a JSON object, no prose, no markdown, with exactly the keys "label", "risk", "effortMinutes", "riskSummary" and "highlights". "effortMinutes" is a positive integer.
