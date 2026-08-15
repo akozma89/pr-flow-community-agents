@@ -1,6 +1,6 @@
 metadata:
   title: Security Reviewer
-  description: "Analyzes the code for security vulnerabilities, secrets, and insecure defaults based on OWASP principles."
+  description: "Analyzes the code for security vulnerabilities, secrets, and insecure defaults based on OWASP principles. Runs when a reviewer opens the diff. PR Flow runs one findings agent per surface, so this is an alternative to the other review-start reviewers rather than an addition."
   tags: ["review", "security", "owasp"]
   authors: ["{{authors}}"]
   published_at: "{{published_at}}"
@@ -26,7 +26,7 @@ agent:
     - Dependency risks
     - Common OWASP issues
 
-    AVOID REPORTING:
+    OUT OF SCOPE for this agent:
     - Style discussions
     - Architecture preferences
     - Performance suggestions (unless they directly cause a security issue, like ReDoS)

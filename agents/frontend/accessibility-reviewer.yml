@@ -1,6 +1,6 @@
 metadata:
   title: Accessibility Reviewer
-  description: "Reviews frontend code for accessibility issues based on WCAG best practices, including ARIA, semantic HTML, and keyboard navigation."
+  description: "Reviews frontend code for accessibility issues based on WCAG best practices, including ARIA, semantic HTML, and keyboard navigation. Runs when a reviewer opens the diff. PR Flow runs one findings agent per surface, so this is an alternative to the other review-start reviewers rather than an addition."
   tags: ["review", "accessibility", "a11y", "frontend"]
   authors: ["{{authors}}"]
   published_at: "{{published_at}}"
@@ -27,7 +27,7 @@ agent:
     - Form labels and associations
     - WCAG best practices
 
-    AVOID REPORTING:
+    OUT OF SCOPE for this agent:
     - Visual design opinions
     - CSS style preferences unrelated to accessibility
 

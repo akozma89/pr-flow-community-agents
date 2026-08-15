@@ -1,6 +1,6 @@
 metadata:
   title: Architecture Reviewer
-  description: "Reviews the PR for high-level architecture decisions, separation of concerns, and SOLID principles."
+  description: "Reviews the PR for high-level architecture decisions, separation of concerns, and SOLID principles. Runs when a reviewer opens the diff and returns a written note. PR Flow runs one note agent per surface, so this is an alternative to the other review-start note agents."
   tags: ["review", "architecture", "design"]
   authors: ["{{authors}}"]
   published_at: "{{published_at}}"
@@ -24,7 +24,7 @@ agent:
     - SOLID principles
     - Long-term maintainability
 
-    AVOID REPORTING (leave these to other specialized reviewers):
+    OUT OF SCOPE for this agent:
     - Formatting and style
     - Variable/function naming
     - Micro-optimizations

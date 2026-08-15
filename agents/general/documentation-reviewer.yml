@@ -1,6 +1,6 @@
 metadata:
   title: Documentation Reviewer
-  description: "Checks the PR for necessary documentation updates, including public APIs, READMEs, and migration notes."
+  description: "Checks the PR for necessary documentation updates, including public APIs, READMEs, and migration notes. Runs when a reviewer opens the diff. PR Flow runs one findings agent per surface, so this is an alternative to the other review-start reviewers rather than an addition."
   tags: ["review", "documentation", "docs"]
   authors: ["{{authors}}"]
   published_at: "{{published_at}}"
@@ -25,7 +25,7 @@ agent:
     - Outdated documentation that no longer matches the code
     - Developer onboarding clarity
 
-    AVOID REPORTING:
+    OUT OF SCOPE for this agent:
     - Requesting comments for obvious, self-documenting code
     - Excessive inline documentation that adds noise
 

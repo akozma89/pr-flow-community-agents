@@ -1,0 +1,40 @@
+metadata:
+  title: Conflict Triage
+  description: "Runs when a PR starts conflicting and writes a short note on where the conflict most likely sits, who else has been touching those files, and what to resolve first. Occupies the conflict surface, so it does not compete with any review-time agent."
+  tags: ["workflow", "conflict", "triage", "git"]
+  authors: ["{{authors}}"]
+  published_at: "{{published_at}}"
+
+agent:
+  id: conflict-triage
+  name: Conflict Triage
+  trigger: on_conflict
+  context:
+    - pr_meta
+    - diff
+    - git_history
+  output: note
+  prompt: |
+    This pull request has started conflicting with its base branch. Write a short triage note that helps the author decide what to do next.
+
+    WHAT YOU CAN SEE — and what you cannot:
+    - The PR's own diff, its file list, and recent commits touching the changed files.
+    - You do NOT see the conflict markers, the base branch's current content, or the other side of the conflict. You therefore cannot say which lines conflict. Do not guess at them, and do not describe a conflict hunk as though you had read it.
+
+    Reason from overlap instead: a file this PR changes heavily, which others have also committed to recently, is where the conflict most likely sits.
+
+    Produce markdown with these sections, skipping any that has nothing to say.
+
+    ### Likely conflict sites
+    - The changed files most likely to be involved, most likely first. For each, say briefly why — the size of this PR's change to it, and the recent commits from others touching it.
+
+    ### Who else has been here
+    - Other authors with recent commits to the affected files, and what those commits appear to have been about. This is who to ask, or who to warn before force-pushing.
+
+    ### Suggested order
+    - What to resolve first and why. Prefer separating mechanical conflicts (imports, lockfiles, generated files, formatting) from semantic ones (the same function or contract changed on both sides) — mechanical ones are safe to take quickly, semantic ones need the other author's intent.
+
+    RULES:
+    - Be terse. Three to six bullets in total is usually right.
+    - Rank by likelihood and say when you are uncertain. A ranked guess labelled as a guess is useful; a confident wrong answer costs the author a bad merge.
+    - If the changed files show no recent activity from anyone else, say so plainly — the conflict is probably mechanical or comes from a base-branch rebase, and the author can likely resolve it without consulting anyone.

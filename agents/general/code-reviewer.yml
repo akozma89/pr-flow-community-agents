@@ -1,6 +1,6 @@
 metadata:
   title: Code Reviewer
-  description: "Reviews code for readability, maintainability, and clean code practices. Focuses on naming, duplication, and simplicity."
+  description: "Reviews code for readability, maintainability, and clean code practices. Focuses on naming, duplication, and simplicity. Runs when a reviewer opens the diff. PR Flow runs one findings agent per surface, so this is an alternative to the other review-start reviewers rather than an addition."
   tags: ["review", "clean-code", "maintainability"]
   authors: ["{{authors}}"]
   published_at: "{{published_at}}"
@@ -25,7 +25,7 @@ agent:
     - Unnecessary complexity
     - Consistency with general best practices
 
-    AVOID REPORTING (leave these to other specialized reviewers):
+    OUT OF SCOPE for this agent:
     - Architecture decisions
     - Security issues
     - Performance optimizations
