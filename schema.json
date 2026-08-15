@@ -1,7 +1,125 @@
 {
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "$ref": "#/definitions/PRFlowAgent",
   "definitions": {
-    "PRFlowAgent": {}
-  },
-  "$schema": "http://json-schema.org/draft-07/schema#"
+    "PRFlowAgent": {
+      "type": "object",
+      "properties": {
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            },
+            "description": {
+              "type": "string",
+              "minLength": 10,
+              "maxLength": 500
+            },
+            "tags": {
+              "maxItems": 5,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "authors": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "published_at": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "description"
+          ],
+          "additionalProperties": false
+        },
+        "agent": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^[a-z0-9-]{1,64}$"
+            },
+            "name": {
+              "type": "string",
+              "maxLength": 60
+            },
+            "trigger": {
+              "type": "string",
+              "enum": [
+                "on_pr_open",
+                "on_pr_draft",
+                "on_review_start",
+                "on_review_submit",
+                "on_conflict",
+                "manual",
+                "on_demand"
+              ]
+            },
+            "paths": {
+              "maxItems": 10,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "context": {
+              "maxItems": 10,
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "output": {
+              "type": "string",
+              "enum": [
+                "findings",
+                "note"
+              ]
+            },
+            "severity_floor": {
+              "type": "string",
+              "enum": [
+                "low",
+                "medium",
+                "high",
+                "critical"
+              ]
+            },
+            "max_findings": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20
+            },
+            "prompt": {
+              "type": "string",
+              "maxLength": 20000
+            }
+          },
+          "required": [
+            "id",
+            "name",
+            "trigger",
+            "context",
+            "output",
+            "prompt"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "metadata",
+        "agent"
+      ],
+      "additionalProperties": false
+    }
+  }
 }
