@@ -5,6 +5,10 @@
     "PRFlowAgent": {
       "type": "object",
       "properties": {
+        "version": {
+          "type": "number",
+          "const": 1
+        },
         "metadata": {
           "type": "object",
           "properties": {
@@ -101,7 +105,7 @@
             },
             "prompt": {
               "type": "string",
-              "maxLength": 20000
+              "maxLength": 8000
             }
           },
           "required": [

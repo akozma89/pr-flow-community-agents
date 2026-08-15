@@ -4,9 +4,12 @@ import { warn } from "./finding.mjs";
 // Quality checks are about *reliability*, not security, so every finding here is
 // a non-blocking warning.
 
-// Soft cap. The hard cap lives in schema.mjs (MAX_PROMPT_LENGTH); beyond this
-// threshold prompts tend to degrade model reliability.
-const PROMPT_RELIABILITY_LIMIT = 10_000;
+// Soft cap — an early warning that a prompt is approaching the hard ceiling.
+// The hard cap lives in schema.mjs (MAX_PROMPT_LENGTH = 8_000), which mirrors
+// what the desktop client accepts on install; past that a submission is
+// uninstallable, not merely unreliable. Warn well before it, since prompts also
+// tend to lose reliability as they grow.
+const PROMPT_RELIABILITY_LIMIT = 6_000;
 
 // Curated markdownlint rules: structural issues only. Every prose/style rule is
 // disabled so free-form prompt text does not generate noise.
@@ -44,7 +47,7 @@ function checkLength(prompt) {
   return [
     warn(
       "quality",
-      `Prompt is ${prompt.length} characters (recommended max ${PROMPT_RELIABILITY_LIMIT}); very long prompts degrade reliability.`,
+      `Prompt is ${prompt.length} characters (recommended max ${PROMPT_RELIABILITY_LIMIT}, hard install ceiling 8,000); long prompts degrade reliability and risk rejection on install.`,
     ),
   ];
 }

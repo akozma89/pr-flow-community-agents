@@ -19,8 +19,5 @@
     "markdownlint": "^0.41.0",
     "yaml": "^2.9.0",
     "zod": "^4.4.3"
-  },
-  "devDependencies": {
-    "zod-to-json-schema": "^3.25.2"
   }
 }
