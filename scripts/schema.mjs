@@ -15,7 +15,7 @@ export const METADATA_VARIABLES = ["authors", "published_at"];
 //
 //   MAX_PROMPT_LENGTH  ↔ agentSchema.MAX_PROMPT_CHARS    (8_000)
 //   MAX_FILE_SELECTORS ↔ agentSchema.MAX_FILE_SELECTORS  (5)
-//   max_findings max   ↔ agentSchema.MAX_FINDINGS_CAP    (20)
+//   max_findings max   ↔ agentSchema.MAX_FINDINGS_CAP    (100)
 //   paths max          ↔ agentSchema.MAX_PATHS           (20; we stay stricter at 10)
 //
 // The softer "getting long" threshold is a non-blocking warning in
@@ -65,7 +65,9 @@ export const AgentSchema = z.object({
       }),
     output: z.enum(["findings", "note"]),
     severity_floor: z.enum(["low", "medium", "high", "critical"]).optional(),
-    max_findings: z.number().int().min(1).max(20).optional(),
+    // Optional on purpose: findings are uncapped by default, and omitting this
+    // is the right choice unless an agent genuinely needs a narrow budget.
+    max_findings: z.number().int().min(1).max(100).optional(),
     prompt: z.string().max(MAX_PROMPT_LENGTH),
   }),
 });

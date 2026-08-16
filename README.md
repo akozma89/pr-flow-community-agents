@@ -121,7 +121,7 @@ Three optional fields shape output. All are enforced by the app, not merely advi
 | Prompt length | **8,000 characters** | The app rejects anything longer at install time. CI warns from 6,000. |
 | `file:` selectors | **5** | Per agent, separate from the 10-selector total. |
 | `paths` patterns | 10 | |
-| `max_findings` | 1–20 | |
+| `max_findings` | 1–100 | Optional. Findings are uncapped unless you set one. |
 
 ### Don't restate the output contract
 
