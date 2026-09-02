@@ -7,6 +7,24 @@ export const ALLOWED_CATEGORIES = ["frontend", "backend", "security", "workflow"
 // (Keep in sync with the resolver list in scripts/build-catalog.js.)
 export const METADATA_VARIABLES = ["authors", "published_at"];
 
+// Non-`file:` context selectors the client knows how to resolve. Mirrors
+// KNOWN_CONTEXT in the desktop client (src/main/agentSchema.js). Until this
+// enum existed, `context` was an unchecked string array: a typo or an
+// unsupported selector passed CI, published to the catalog, and then installed
+// on every seat as valid-but-*unsupported* — listed with a badge and silently
+// never run, with no signal to the author. Validating here is the only place
+// that mistake can be caught before publication.
+export const CONTEXT_SELECTORS = [
+  "diff",
+  "pr_meta",
+  "linked_ticket",
+  "git_history",
+  // Change Story vocabulary. A seat whose PR Flow predates support for these
+  // treats an agent declaring them as unsupported — see README, "Availability".
+  "review_hunks",
+  "local_repo",
+];
+
 // ── Client parity ────────────────────────────────────────────────────────────
 // These caps mirror what the PR Flow desktop client enforces on install
 // (src/main/agentSchema.js). A submission that passes here but exceeds a client
@@ -51,10 +69,26 @@ export const AgentSchema = z.object({
       "on_conflict",
       "manual",
       "on_demand",
+      "on_change_story_request",
     ]),
     paths: z.array(z.string()).max(10).optional(),
     context: z
-      .array(z.string())
+      .array(
+        // A union rather than a `.refine`, so the value set survives into the
+        // generated schema.json and editors can autocomplete it (a refine is a
+        // runtime predicate and serializes to nothing).
+        //
+        // The message lives on the `file:` branch, not on the union: Zod 4
+        // collapses a failed union to its LAST branch's issue, so a union-level
+        // message never surfaces. Phrased to read correctly for both ways this
+        // fails — an unknown selector, and a `file:` prefix with no path.
+        z.union([
+          z.enum(CONTEXT_SELECTORS),
+          z.string().regex(/^file:.+/, {
+            error: `Unknown context selector. Use one of: ${CONTEXT_SELECTORS.join(", ")}, or \`file:<path>\` with a path.`,
+          }),
+        ]),
+      )
       .max(10)
       .refine(
         (sel) => sel.filter((s) => s.startsWith("file:")).length <= MAX_FILE_SELECTORS,
@@ -63,7 +97,7 @@ export const AgentSchema = z.object({
       .refine((sel) => sel.every((s) => (s.startsWith("file:") ? s.slice(5).trim().length > 0 : true)), {
         message: "A `file:` selector needs a path.",
       }),
-    output: z.enum(["findings", "note"]),
+    output: z.enum(["findings", "note", "change_story"]),
     severity_floor: z.enum(["low", "medium", "high", "critical"]).optional(),
     // Optional on purpose: findings are uncapped by default, and omitting this
     // is the right choice unless an agent genuinely needs a narrow budget.

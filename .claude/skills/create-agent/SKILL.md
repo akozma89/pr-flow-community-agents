@@ -46,12 +46,16 @@ questions and confirm your reading instead of re-asking.
   the prompt cannot reach beyond it). Pick from: `diff`, `pr_meta`,
   `linked_ticket`, `git_history`, and `file:<path>` (a repo file at head SHA,
   e.g. `file:docs/design-system.md`). Max 10. `diff` is almost always wanted.
+  The list is validated — an unknown selector fails CI. A few further values
+  exist but are reserved for PR Flow's own built-in agents or not yet resolved
+  by any released client; see the README's "Availability" table. Do not offer
+  them for a contributed agent.
 - **output** — `findings` (line-anchored notes with severity — for enforcers) or
   `note` (a markdown blurb — for summaries/cheat sheets).
 - **prompt** — the system prompt. See "Writing a good prompt" below.
 - Optional: **tags** (≤5), **paths** (globs; run only if the diff touches one,
   e.g. `src/renderer/**`, ≤10), **severity_floor** (`low`/`medium`/`high`/
-  `critical`, findings only — drops anything below), **max_findings** (1–20).
+  `critical`, findings only — drops anything below), **max_findings** (1–100; omit it unless a narrow budget is genuinely wanted — a stated ceiling pulls the model toward producing that many).
 
 Derive `id` as the kebab-case of the title unless the user gives one; it must
 match `^[a-z0-9-]{1,64}$` and be unique across the store. `name` defaults to the

@@ -65,7 +65,8 @@
                 "on_review_submit",
                 "on_conflict",
                 "manual",
-                "on_demand"
+                "on_demand",
+                "on_change_story_request"
               ]
             },
             "paths": {
@@ -79,14 +80,31 @@
               "maxItems": 10,
               "type": "array",
               "items": {
-                "type": "string"
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "enum": [
+                      "diff",
+                      "pr_meta",
+                      "linked_ticket",
+                      "git_history",
+                      "review_hunks",
+                      "local_repo"
+                    ]
+                  },
+                  {
+                    "type": "string",
+                    "pattern": "^file:.+"
+                  }
+                ]
               }
             },
             "output": {
               "type": "string",
               "enum": [
                 "findings",
-                "note"
+                "note",
+                "change_story"
               ]
             },
             "severity_floor": {

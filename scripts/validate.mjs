@@ -10,7 +10,13 @@ import { checkSecurity } from "./checks/security.mjs";
 import { checkQuality } from "./checks/quality.mjs";
 import { checkMetadataVariables } from "./checks/metadata.mjs";
 
-// Validation pipeline for community agent configs. For each `agents/**/*.yml`:
+// Validation pipeline for agent configs. Two lanes:
+//
+//   community (`agents/<category>/*.yml`) — the full pipeline below.
+//   first-party (`agents/default/*.yml`)  — structural checks only, see
+//                                           FIRST_PARTY_DIRS.
+//
+// For each community file:
 //   1. category   — folder must be an allowed category
 //   2. yaml       — secure parse + lint (checks/yaml.mjs)
 //   3. schema     — shape validation (schema.mjs)
@@ -25,9 +31,17 @@ const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const AGENTS_DIR = path.join(ROOT, "agents");
 
 // First-party directories maintained by PR Flow itself (the built-in default
-// prompts synced into the app build). They are not community-editable, so the
-// validator skips them entirely rather than treating them as a category.
-const RESERVED_DIRS = new Set(["default"]);
+// prompts synced into the app build). They are not a category and not
+// community-editable, so they skip the checks calibrated for untrusted
+// third-party submissions: the category rule, the dangerous-capability and
+// prompt-injection heuristics (a default may legitimately tell the model to use
+// its tools), and the authoring-quality advice.
+//
+// They are NOT skipped entirely, which is what used to happen. A default is
+// vendored straight into the app build, so a malformed one ships — its only
+// other gate is the app parsing it at module load and console.erroring. Schema,
+// YAML safety, secrets and store-wide id/name uniqueness all still apply here.
+const FIRST_PARTY_DIRS = new Set(["default"]);
 
 function collectAgentFiles(dir) {
   if (!fs.existsSync(dir)) return [];
@@ -35,7 +49,6 @@ function collectAgentFiles(dir) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) {
-      if (RESERVED_DIRS.has(entry.name)) continue;
       files.push(...collectAgentFiles(full));
     } else if (/\.ya?ml$/i.test(entry.name)) {
       files.push(full);
@@ -49,7 +62,8 @@ async function inspectFile(file, scanSecrets, registry) {
   const findings = [];
 
   const category = path.relative(AGENTS_DIR, file).split(path.sep)[0];
-  if (!ALLOWED_CATEGORIES.includes(category)) {
+  const firstParty = FIRST_PARTY_DIRS.has(category);
+  if (!firstParty && !ALLOWED_CATEGORIES.includes(category)) {
     findings.push(error("category", `Category "${category}" is not allowed. Use one of: ${ALLOWED_CATEGORIES.join(", ")}.`));
   }
 
@@ -72,12 +86,14 @@ async function inspectFile(file, scanSecrets, registry) {
       if (registry.names.has(name)) findings.push(error("uniqueness", `Duplicate agent name "${name}" (already used by ${registry.names.get(name)}).`));
       else registry.names.set(name, relToRoot);
 
-      findings.push(...checkMetadataVariables(parsed.data.metadata));
-
       // Scan the whole file — secrets can hide in metadata, not just the prompt.
       findings.push(...(await scanSecrets(content, relToRoot)));
-      findings.push(...checkSecurity(prompt));
-      findings.push(...checkQuality(prompt));
+
+      if (!firstParty) {
+        findings.push(...checkMetadataVariables(parsed.data.metadata));
+        findings.push(...checkSecurity(prompt));
+        findings.push(...checkQuality(prompt));
+      }
     }
   }
 

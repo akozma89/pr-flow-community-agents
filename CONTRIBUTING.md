@@ -16,7 +16,8 @@ Using Claude Code in this repo? Run the **`/create-agent`** skill — it intervi
 2. **Metadata**: You must include a `metadata` block at the top of the file with `title`, `description`, and `tags`.
    - Leave the `{{authors}}` and `{{published_at}}` variables in place — CI fills them from your commit history. (These are the only supported variables; a typo like `{{author}}` fails validation.)
 3. **Uniqueness**: Your `agent.id` and `agent.name` must be unique across the entire store.
-4. **Safety**: Every submission is scanned automatically. Hard-coded **secrets** are rejected outright. Prompts that request **dangerous capabilities** (unrestricted shell, filesystem, HTTP, or SQL access) or contain **prompt-injection / jailbreak** language are flagged for mandatory maintainer review before they can be merged.
+4. **Availability**: Check the README's [Availability](README.md#availability) table before using a newer trigger, output or context value. Some are reserved for PR Flow's own built-in agents, and any value a seat's client does not recognise makes your agent install as *unsupported* — listed, but never run.
+5. **Safety**: Every submission is scanned automatically. Hard-coded **secrets** are rejected outright. Prompts that request **dangerous capabilities** (unrestricted shell, filesystem, HTTP, or SQL access) or contain **prompt-injection / jailbreak** language are flagged for mandatory maintainer review before they can be merged.
 
 ## Writing the prompt
 
@@ -70,8 +71,14 @@ PR can write. Never instruct the model to follow instructions it finds there.
 
 ## What the validator checks
 Running `pnpm run validate` (also enforced in CI) will:
-- **Fail the build** on: invalid category, YAML syntax/security issues (duplicate keys, disallowed anchors/aliases), schema violations (including a prompt over the 8,000-character install ceiling, or more than 5 `file:` selectors), duplicate `id`/`name`, or a detected secret.
+- **Fail the build** on: invalid category, YAML syntax/security issues (duplicate keys, disallowed anchors/aliases), schema violations (including a prompt over the 8,000-character install ceiling, more than 5 `file:` selectors, or an unknown `context` selector), duplicate `id`/`name`, or a detected secret.
 - **Warn** (advisory, surfaced for review) on: dangerous-capability or prompt-injection heuristics, and reliability issues such as a long prompt (>6k chars), duplicate instructions, leftover placeholders, undefined `{{variables}}`, or broken Markdown / unclosed code fences.
+
+`agents/default/` holds PR Flow's own built-in prompts, vendored straight into the app build. They
+are not a category and not community-editable, so they skip the checks calibrated for untrusted
+submissions — the category rule, the dangerous-capability and prompt-injection heuristics, and the
+authoring-quality advice. Schema, YAML safety, secrets and store-wide `id`/`name` uniqueness still
+apply to them.
 
 ## Testing Locally
 Use Node 22+ (see `.nvmrc`). Before opening a PR, validate your agent locally:

@@ -37,7 +37,7 @@ agent:
 
 ## Anatomy of an agent
 
-An agent declares **when** it runs (`trigger`), **what it may read** (`context`), **what it emits** (`output` — `findings` or `note`), and the `prompt` that drives it. Two kinds of *variables* keep a config short and self-maintaining: **metadata variables** that CI fills from git, and **context variables** that resolve to live PR data at run time — and which of those matter depends on *when* the agent runs.
+An agent declares **when** it runs (`trigger`), **what it may read** (`context`), **what it emits** (`output` — `findings`, `note`, or `change_story`), and the `prompt` that drives it. Two kinds of *variables* keep a config short and self-maintaining: **metadata variables** that CI fills from git, and **context variables** that resolve to live PR data at run time — and which of those matter depends on *when* the agent runs.
 
 ### Metadata variables — filled by CI
 
@@ -63,6 +63,7 @@ The trigger is the PR-lifecycle moment PR Flow runs your agent. It sets the timi
 | `on_conflict` | The PR becomes merge-conflicting | Conflict-triage notes |
 | `manual` | The user clicks **Run** | On-demand or expensive analysis |
 | `on_demand` | A feature surface invokes it per interaction | Interactive assistants. **Not a lifecycle moment** — the engine never fires it on its own |
+| `on_change_story_request` | A reviewer asks for a Change Story (Generate / Rebuild) | The guided review path. **Reserved** — see [Availability](#availability) |
 
 ### Surfaces — why only one of your agents runs
 
@@ -94,8 +95,12 @@ Current occupancy of this store:
 | `linked_ticket` | Linked Jira / GitHub / GitLab / Linear / Trello ticket² | ✅ | ✅ | — | ✅ |
 | `git_history` | Recent commits touching the changed files | ✅ | ✅ | ⭐ | ✅ |
 | `file:<path>` | A repo file at the PR head SHA (e.g. `file:docs/design-system.md`) | ✅ | ✅ | ✅ | ✅ |
+| `review_hunks` | Every reviewable hunk in the PR, each with a stable id | — | — | — | — |
+| `local_repo` | Read-only access to the reviewer's mapped local checkout, pinned to a revision | — | — | — | — |
 
-✅ available & idiomatic · ⭐ the key selector for this trigger · ⚠️ partial · — rarely useful
+✅ available & idiomatic · ⭐ the key selector for this trigger · ⚠️ partial · — rarely useful or not applicable
+
+The last two rows belong to Change Story and are covered under [Availability](#availability).
 
 > ¹ At draft time there are no reviewers yet, so `pr_meta`'s review-thread section is empty.
 > ² Selecting `linked_ticket` sends ticket contents to the model provider — mention it in your PR description.
@@ -122,6 +127,39 @@ Three optional fields shape output. All are enforced by the app, not merely advi
 | `file:` selectors | **5** | Per agent, separate from the 10-selector total. |
 | `paths` patterns | 10 | |
 | `max_findings` | 1–100 | Optional. Findings are uncapped unless you set one. |
+
+### Availability
+
+The schema is the contract for **every** PR Flow client, including versions older than the vocabulary
+you write against. A seat whose PR Flow does not recognise a value treats the agent as
+**valid but unsupported**: it installs, it is listed with a badge, and it never runs. Nothing breaks —
+but nothing happens either, and the author gets no signal.
+
+So before using anything in this table, know what it costs:
+
+| Value | Kind | Status |
+| --- | --- | --- |
+| `on_change_story_request` | trigger | Reserved for the built-in guide |
+| `change_story` | output | Reserved for the built-in guide |
+| `review_hunks` | context | Reserved for the built-in guide |
+| `local_repo` | context | Not yet resolved by any released client |
+
+**Reserved** means the surface is a singleton the first-party agent claims: `change_story` drives
+navigation through a real diff, so the app validates the structure in code and renders live hunks
+from ids — a second producer would race the built-in rather than add to it. The values are in the
+schema because the built-in
+[`agents/default/change-story-guide.yml`](agents/default/change-story-guide.yml) is authored here
+like every other prompt, and because validating them is how a typo gets caught. A contributed agent
+using them will pass CI and then sit unsupported on every seat.
+
+`local_repo` is different: it is a genuinely general capability — any agent may ask to read the
+reviewer's mapped local checkout — but no released client resolves it yet, and when one does the
+access is gated on an explicit per-repository grant and a provider that can prove a read-only
+boundary. Declaring it today is forward-looking, not functional.
+
+Two things are always true regardless of client version: an unresolved selector is **skipped and
+recorded on the run**, never silently dropped; and your prompt should say what to do when a selector
+is absent rather than assume it is there.
 
 ### Don't restate the output contract
 
