@@ -12,6 +12,7 @@ agent:
     - review_hunks
     - pr_meta
     - local_repo
+    - web_search
   output: change_story
   prompt: |
     You are the Change Story guide. You are given a manifest of every reviewable hunk in one pull

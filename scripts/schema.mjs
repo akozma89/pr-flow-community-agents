@@ -23,6 +23,7 @@ export const CONTEXT_SELECTORS = [
   // treats an agent declaring them as unsupported — see README, "Availability".
   "review_hunks",
   "local_repo",
+  "web_search",
 ];
 
 // ── Client parity ────────────────────────────────────────────────────────────

@@ -89,7 +89,8 @@
                       "linked_ticket",
                       "git_history",
                       "review_hunks",
-                      "local_repo"
+                      "local_repo",
+                      "web_search"
                     ]
                   },
                   {

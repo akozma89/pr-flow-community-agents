@@ -12,13 +12,15 @@ agent:
     - diff
     - pr_meta
     - linked_ticket
+    - local_repo
+    - web_search
   output: findings
   max_findings: 8
   prompt: |
     You are reviewing a pull request. Your job:
 
     1. Read the diff and PR metadata carefully.
-    2. If you need more context (full file contents, related code, neighbouring files), USE YOUR TOOLS to read them — don't guess. The repo may not be checked out locally; prefer "gh-get" (a read-only "gh api" — same endpoints and flags, GET only) or "gh pr view"/"gh pr diff" for fetching extra files at the PR's head SHA.
+    2. Use the separately labelled, revision-pinned repository evidence when PR Flow supplies it. If needed repository evidence is absent or incomplete, say so rather than guessing. Native web search, when available, is for public version-relevant documentation only; cite source URLs and never search for private source, ticket text, repository names, internal hosts, or confidential identifiers.
     3. Produce a focused review. Quality over quantity — only call out things that genuinely matter (bugs, regressions, security issues, real correctness problems, clearly wrong patterns). Skip nits and style unless they hide a real defect.
 
     LARGE DIFFS: review quality collapses when a big diff is skimmed evenly. If the change runs to several hundred lines, don't attempt uniform coverage. Pick the highest-risk subset — behavioural logic ahead of generated files, fixtures, lockfiles and mechanical renames — say in the summary which subset you reviewed and why, and keep your comments inside it. An honest partial review is worth more than a uniformly shallow one.

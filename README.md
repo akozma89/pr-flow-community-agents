@@ -97,6 +97,7 @@ Current occupancy of this store:
 | `file:<path>` | A repo file at the PR head SHA (e.g. `file:docs/design-system.md`) | ✅ | ✅ | ✅ | ✅ |
 | `review_hunks` | Every reviewable hunk in the PR, each with a stable id | — | — | — | — |
 | `local_repo` | Read-only access to the reviewer's mapped local checkout, pinned to a revision | — | — | — | — |
+| `web_search` | Provider-native search for public documentation when the selected provider supports it | — | ✅ | — | ✅ |
 
 ✅ available & idiomatic · ⭐ the key selector for this trigger · ⚠️ partial · — rarely useful or not applicable
 
@@ -142,7 +143,8 @@ So before using anything in this table, know what it costs:
 | `on_change_story_request` | trigger | Reserved for the built-in guide |
 | `change_story` | output | Reserved for the built-in guide |
 | `review_hunks` | context | Reserved for the built-in guide |
-| `local_repo` | context | Not yet resolved by any released client |
+| `local_repo` | context | Available in PR Flow 1.17+ with an explicit repository and AI-destination grant |
+| `web_search` | context | Available in PR Flow 1.17+ when explicitly declared, permitted by policy, and supported by the selected provider |
 
 **Reserved** means the surface is a singleton the first-party agent claims: `change_story` drives
 navigation through a real diff, so the app validates the structure in code and renders live hunks
@@ -152,10 +154,11 @@ schema because the built-in
 like every other prompt, and because validating them is how a typo gets caught. A contributed agent
 using them will pass CI and then sit unsupported on every seat.
 
-`local_repo` is different: it is a genuinely general capability — any agent may ask to read the
-reviewer's mapped local checkout — but no released client resolves it yet, and when one does the
-access is gated on an explicit per-repository grant and a provider that can prove a read-only
-boundary. Declaring it today is forward-looking, not functional.
+`local_repo` and `web_search` are general capabilities. Repository reads require an explicit
+per-agent, per-repository grant scoped to the selected AI destination. Web search is separately
+controlled: existing custom agents do not gain it automatically, unsupported providers continue
+without it, and public search terms must not contain private source, ticket text or confidential
+identifiers.
 
 Two things are always true regardless of client version: an unresolved selector is **skipped and
 recorded on the run**, never silently dropped; and your prompt should say what to do when a selector
