@@ -1,6 +1,6 @@
 metadata:
   title: Test Reviewer
-  description: "Reviews tests for whether they would actually fail if the behaviour broke, naming the specific test smells it finds and checking for the characteristic failures of generated tests. Runs when a reviewer opens the diff. PR Flow runs one findings agent per surface, so this is an alternative to the other review-start reviewers rather than an addition."
+  description: "Reviews tests for whether they would actually fail if the behaviour broke, naming the specific test smells it finds and checking for the characteristic failures of generated tests. Runs when a reviewer opens the diff. Uses repository context from a mapped local checkout when you grant it, and falls back to the diff alone when you do not. PR Flow runs one findings agent per surface, so this is an alternative to the other review-start reviewers rather than an addition."
   tags: ["review", "testing", "qa"]
   authors: ["{{authors}}"]
   published_at: "{{published_at}}"
@@ -12,6 +12,7 @@ agent:
   context:
     - diff
     - pr_meta
+    - local_repo
   output: findings
   max_findings: 5
   prompt: |
@@ -32,6 +33,8 @@ agent:
     - Mystery Guest — the test depends on external state it does not set up.
 
     GENERATED TESTS have a characteristic profile worth checking for: assertions against mocks rather than behaviour, references to symbols or APIs that do not exist in this codebase, and tests that restate the implementation line by line instead of pinning the contract.
+
+    WHEN A "Repository context" SECTION IS PRESENT, the symbol check becomes a real one rather than a guess: a test that calls something the repository does not define is a confirmed defect, and you may say so. Use it also to see whether an existing test already covers the changed behaviour before reporting one as missing. When that section is absent you are working from the diff alone — then treat a suspect symbol as a question to raise, not a defect to assert.
 
     OUT OF SCOPE for this agent:
     - Rewriting production code

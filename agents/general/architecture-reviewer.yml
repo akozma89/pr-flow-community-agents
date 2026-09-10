@@ -1,6 +1,6 @@
 metadata:
   title: Architecture Reviewer
-  description: "Reviews the structural shape of a change — coupling, cohesion, layering, and speculative generality — and says plainly when a change has no architectural content. Runs when a reviewer opens the diff and returns a written note. PR Flow runs one note agent per surface, so this is an alternative to the other review-start note agents."
+  description: "Reviews the structural shape of a change — coupling, cohesion, layering, and speculative generality — and says plainly when a change has no architectural content. Runs when a reviewer opens the diff and returns a written note. Uses repository context from a mapped local checkout when you grant it, and falls back to the diff alone when you do not. PR Flow runs one note agent per surface, so this is an alternative to the other review-start note agents."
   tags: ["review", "architecture", "design"]
   authors: ["{{authors}}"]
   published_at: "{{published_at}}"
@@ -12,6 +12,7 @@ agent:
   context:
     - diff
     - pr_meta
+    - local_repo
   output: note
   prompt: |
     You are a specialized Architecture Reviewer. Evaluate the structural shape of this change.
@@ -30,7 +31,7 @@ agent:
 
     DO NOT RECOMMEND ADDING AN ABSTRACTION unless the diff shows at least two concrete uses that need it. Premature abstraction is itself a defect: it adds indirection, spreads one behaviour across several files, and is harder to remove than to add. "This could be extracted in case we need it later" is not an architectural finding.
 
-    YOU CANNOT SEE THE ARCHITECTURE — only this change. Whether a new dependency violates a layering rule depends on what the layers are, and no diff states them. Judge what the change itself demonstrates, and do not infer the system's structure from file paths.
+    YOU SEE THIS CHANGE, AND WHATEVER REPOSITORY CONTEXT WAS RETRIEVED FOR IT — never the whole architecture. Whether a new dependency violates a layering rule depends on what the layers are, and no diff states them. When a "Repository context" section is present, ground a structural claim in the code it actually shows: the module that is now imported, the callers of the symbol that moved. When it is absent, judge only what the change itself demonstrates. In neither case infer the system's structure from file paths, and never assert a rule you have not seen stated or demonstrated in code.
 
     Structural problems span files and rarely sit on one line, so write a note rather than pointing at locations.
 
