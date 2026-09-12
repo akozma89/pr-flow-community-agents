@@ -1,6 +1,6 @@
 metadata:
   title: PR Complexity & Risk
-  description: "Rates a PR on review complexity and regression risk, estimates review effort in minutes, and writes a short risk summary with glance-level highlights. Uses recent commit history on the changed files as a risk signal."
+  description: "Rates a PR on review complexity and regression risk, and writes a short risk summary with glance-level highlights. Uses recent commit history on the changed files as a risk signal."
   tags: ["triage", "complexity", "risk"]
   authors: ["PR Flow"]
 
@@ -39,8 +39,6 @@ agent:
 
     Also write a concise RISK SUMMARY explaining what the reviewer should watch out for and why the risk level is what it is — name the specific subsystems/files at stake and the realistic failure mode. Hard limits: at most 3 sentences and at most 280 characters; going over either is an invalid response. If risk is "safe", a single short sentence is fine.
 
-    EFFORT MINUTES — how long an experienced reviewer, already familiar with the repo, would need to read and properly review this diff. Not how long it took to write. There is no ceiling: if a change genuinely needs three hours, say so rather than flattening it into a smaller number. Trivial typo, doc and version-bump PRs are a couple of minutes.
-
     HIGHLIGHTS — 2-3 terse bullet thoughts (each a fragment, ≤ ~12 words, no markdown, no trailing period needed) that let a reviewer grasp the PR at a glance: what it changes and where to focus. Lead with the most important. Example: ["Splits polling out of index.js", "Check the backoff math and shared mutex", "Adds jittered exponential backoff"].
 
-    Return ONLY a JSON object, no prose, no markdown, with exactly the keys "label", "risk", "effortMinutes", "riskSummary" and "highlights". "effortMinutes" is a positive integer.
+    Return ONLY a JSON object, no prose, no markdown, with exactly the keys "label", "risk", "riskSummary" and "highlights".
